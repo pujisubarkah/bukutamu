@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios"
+import { supabase } from '../supabaseClient';
 import moment from "moment"
 import ReactPaginate from "react-paginate";
 import AddGuestModal from "./AddGuestModal";
@@ -21,13 +21,26 @@ const IndexGuests = () => {
         getGuests()
     }, [page, search, showModalAdd, showModalEdit])
 
-    const getGuests =  async () => {
-        const response = await axios.get(`http://localhost:5000/guests?search=${search}&page=${page}&limit=${limit}`)
-        setGuest(response.data.result)
-        setPage(response.data.page)
-        setTotalPage(response.data.totalPage)
-        setTotalRow(response.data.totalRow)
-    }
+    const getGuests = async () => {
+        try {
+            // Query the guests table with search, pagination, and limit
+            const { data, error, count } = await supabase
+                .from('visitor')
+                .select('*', { count: 'exact' })
+                .ilike('nama', `%${search}%`) // Assuming 'name' is the column you're searching
+                .range((page - 1) * limit, page * limit - 1); // Pagination logic
+    
+            if (error) throw error;
+    
+            setGuest(data); // Set the retrieved guests
+            setTotalRow(count); // Set the total row count
+            // Calculate total pages
+            setTotalPage(Math.ceil(count / limit)); 
+            setPage(page); // Set the current page (if needed)
+        } catch (error) {
+            console.error('Error fetching guests:', error.message);
+        }
+    };
 
     const searchData = (e) => {
         e.preventDefault()
@@ -46,12 +59,20 @@ const IndexGuests = () => {
 
     const deleteGuest = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/guests/${id}`)
-            getGuests()
-        } catch(error) {
-            console.log(error)
+            // Delete the guest with the specified id
+            const { error } = await supabase
+                .from('visitor')
+                .delete()
+                .eq('id', id); // Assuming 'id' is the primary key column
+    
+            if (error) throw error;
+    
+            // Fetch the updated list of guests after deletion
+            getGuests();
+        } catch (error) {
+            console.error('Error deleting guest:', error.message);
         }
-    }
+    };
 
     return (
         <div>

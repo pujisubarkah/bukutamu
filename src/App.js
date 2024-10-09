@@ -5,12 +5,10 @@ import 'moment/locale/id';
 import IndexGuests from './components/IndexGuests.js';
 import Dashboard from './components/Dashboard.js';
 import DashboardBukuTamu from './components/DashboardBukuTamu.js';
-import axios from 'axios';
 import Login from './components/Login.js';
 
 function App() {
-  moment.locale('id')
-  axios.defaults.withCredentials = true
+
   
   return (
     <div>

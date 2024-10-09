@@ -1,39 +1,55 @@
-import React, { useState } from 'react'
-import axios from 'axios'
+import React, { useState } from 'react';
+import { supabase } from '../supabaseClient'; // Ensure the Supabase client is correctly imported
 
-const AddGuestModal = ({ visible, onClose}) => {
-  const [nama, setNama] = useState('')
-  const [nip, setNip] = useState('')
-  const [unit, setUnit] = useState('')
-  const [phone, setPhone] = useState('')
-  const [description, setDescription] = useState('')
+
+const AddGuestModal = ({ visible, onClose }) => {
+  const [nama, setNama] = useState('');
+  const [asalInstansi, setAsalInstansi] = useState('');
+  const [unit, setUnit] = useState('');
+  const [noKontak, setNoKontak] = useState('');
+  const [tujuan, setTujuan] = useState('');
+  const [keperluan, setKeperluan] = useState('');
 
   const handleOnClose = (e) => {
-    if(e.target.id === "background") onClose()
-  }
+    if (e.target.id === "background") onClose();
+  };
 
-  if(!visible) return null
+  if (!visible) return null;
 
   const saveGuest = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
-        await axios.post('http://localhost:5000/guests', {
+      const { data, error } = await supabase
+        .from('visitor') // Ganti dengan nama tabel yang sesuai
+        .insert([
+          {
             nama,
-            nip,
-            unit,
-            phone,
-            description
-        })
-        onClose()
-        setNama('')
-        setNip('')
-        setUnit('')
-        setPhone('')
-        setDescription('')
-    } catch(error) {
-        console.log(error)
+            asal_instansi: asalInstansi,
+            unit_dituju: unit,
+            no_kontak: noKontak,
+            tuju_pegawai: tujuan,
+            keperluan,
+          },
+        ]);
+
+      if (error) {
+        throw error; // Tangani error sesuai kebutuhan
+      }
+
+      console.log("Guest added successfully:", data); // Logging data yang berhasil ditambahkan
+
+      onClose(); // Tutup modal setelah berhasil
+      // Reset state setelah menambahkan tamu baru
+      setNama('');
+      setAsalInstansi('');
+      setNoKontak('');
+      setUnit('');
+      setTujuan('');
+      setKeperluan('');
+    } catch (error) {
+      console.error("Error inserting data:", error);
     }
-}
+  };
 
   return (
     <div onClick={handleOnClose} id='background' className='fixed inset-0 bg-slate-900 bg-opacity-30 backdrop-blur-sm flex justify-center items-center'>
@@ -42,7 +58,7 @@ const AddGuestModal = ({ visible, onClose}) => {
         <br />
         <form onSubmit={saveGuest}>
           <div className='field py-3'>
-            <label className='font-semibold text-slate-600'>Nama</label>
+            <label className='font-semibold text-slate-600'>Nama Pemohon</label>
             <input 
               type="text" 
               value={nama} 
@@ -51,20 +67,31 @@ const AddGuestModal = ({ visible, onClose}) => {
               required 
             />
           </div>
-          
+
           <div className='field py-3'>
-            <label className='font-semibold text-slate-600'>NIP/NIM</label>
+            <label className='font-semibold text-slate-600'>Asal/Instansi Pemohon</label>
             <input 
               type="text" 
-              value={nip} 
-              onChange={(e) => setNip(e.target.value)} 
+              value={asalInstansi} 
+              onChange={(e) => setAsalInstansi(e.target.value)} 
               className='block w-full bg-slate-100 py-1 px-3 rounded focus:outline-none focus:ring-1 focus:ring-sky-400 focus:border-sky-400' 
               required 
             />
           </div>
 
           <div className='field py-3'>
-            <label className='font-semibold text-slate-600'>Unit</label>
+            <label className='font-semibold text-slate-600'>No. Kontak Pemohon yang dapat dihubungi</label>
+            <input 
+              type="tel" // Ubah menjadi type="tel"
+              value={noKontak} 
+              onChange={(e) => setNoKontak(e.target.value)} 
+              className='block w-full bg-slate-100 py-1 px-3 rounded focus:outline-none focus:ring-1 focus:ring-sky-400 focus:border-sky-400' 
+              required 
+            />
+          </div>
+
+          <div className='field py-3'>
+            <label className='font-semibold text-slate-600'>Unit Dituju</label>
             <input 
               type="text" 
               value={unit} 
@@ -75,22 +102,21 @@ const AddGuestModal = ({ visible, onClose}) => {
           </div>
 
           <div className='field py-3'>
-            <label className='font-semibold text-slate-600'>No.Telepon</label>
+            <label className='font-semibold text-slate-600'>Pejabat/Pegawai Dituju</label>
             <input 
               type="text" 
-              value={phone} 
-              onChange={(e) => setPhone(e.target.value)} 
+              value={tujuan} 
+              onChange={(e) => setTujuan(e.target.value)} 
               className='block w-full bg-slate-100 py-1 px-3 rounded focus:outline-none focus:ring-1 focus:ring-sky-400 focus:border-sky-400' 
               required 
             />
           </div>
 
           <div className='field py-3'>
-            <label className='font-semibold text-slate-600'>No.Telepon</label>
+            <label className='font-semibold text-slate-600'>Keperluan</label>
             <textarea 
-              type="text" 
-              value={description} 
-              onChange={(e) => setDescription(e.target.value)} 
+              value={keperluan} 
+              onChange={(e) => setKeperluan(e.target.value)} 
               cols="30"
               rows="10"
               className='block w-full bg-slate-100 py-1 px-3 rounded focus:outline-none focus:ring-1 focus:ring-sky-400 focus:border-sky-400' 
@@ -98,11 +124,11 @@ const AddGuestModal = ({ visible, onClose}) => {
             />
           </div>
 
-          <button type='submit' onClick={handleOnClose} className='py-1 px-3 bg-sky-600 rounded text-white shadow hover:bg-sky-500'>Submit</button>
+          <button type='submit' className='py-1 px-3 bg-sky-600 rounded text-white shadow hover:bg-sky-500'>Submit</button>
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AddGuestModal
+export default AddGuestModal;

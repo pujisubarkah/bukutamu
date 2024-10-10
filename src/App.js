@@ -14,10 +14,10 @@ function App() {
     <div>
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={<IndexGuests/>} />
-        <Route path='/dashboard' element={<Dashboard/>} />
-        <Route path='/dashboard/bukutamu' element={<DashboardBukuTamu/>} />
-        <Route path='/login' element={<Login/>} />
+        <Route path='/' element={<Login />} />
+        <Route path='/dashboard' element={<Dashboard />} />
+        <Route path='/dashboard/bukutamu' element={<DashboardBukuTamu />} />
+        <Route path='/dashboard/bukutamu/:id' element={<IndexGuests />} />  
       </Routes>
     </BrowserRouter>
     </div>

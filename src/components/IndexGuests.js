@@ -1,76 +1,102 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from '../supabaseClient';
-import moment from "moment"
+import moment from "moment";
 import ReactPaginate from "react-paginate";
-import AddGuestModal from "./AddGuestModal";
+import AddGuestModal from "./AddGuestModal"; // Ensure this path is correct
 import EditGuestModal from "./EditGuestModal";
 
 const IndexGuests = () => {
-    const [guests, setGuest] = useState([])
-    const [page, setPage] = useState(0)
-    const [limit, setLimit] = useState(10)
-    const [totalPage, setTotalPage] = useState(0)
-    const [totalRow, setTotalRow] = useState(0)
-    const [search, setSearch] = useState("")
-    const [message, setMessage] = useState("")
-    const [showModalAdd, setShowModalAdd] = useState(false)
-    const [showModalEdit, setShowModalEdit] = useState(false)
-    const [modalId, setModalId] = useState("")
+    const [guests, setGuests] = useState([]);
+    const [page, setPage] = useState(0);
+    const [limit, setLimit] = useState(10);
+    const [totalPage, setTotalPage] = useState(0);
+    const [totalRow, setTotalRow] = useState(0);
+    const [search, setSearch] = useState("");
+    const [message, setMessage] = useState("");
+    const [showModalAdd, setShowModalAdd] = useState(false);
+    const [showModalEdit, setShowModalEdit] = useState(false);
+    const [modalId, setModalId] = useState("");
 
     useEffect(() => {
-        getGuests()
-    }, [page, search, showModalAdd, showModalEdit])
+        getGuests();
+    }, [page, search, showModalAdd, showModalEdit]);
 
     const getGuests = async () => {
         try {
-            // Query the guests table with search, pagination, and limit
             const { data, error, count } = await supabase
                 .from('visitor')
                 .select('*', { count: 'exact' })
-                .ilike('nama', `%${search}%`) // Assuming 'name' is the column you're searching
-                .range((page - 1) * limit, page * limit - 1); // Pagination logic
-    
+                .ilike('nama', `%${search}%`)
+                .range(page * limit, (page + 1) * limit - 1); // Adjusted range for pagination
+
             if (error) throw error;
-    
-            setGuest(data); // Set the retrieved guests
-            setTotalRow(count); // Set the total row count
-            // Calculate total pages
-            setTotalPage(Math.ceil(count / limit)); 
-            setPage(page); // Set the current page (if needed)
+
+            setGuests(data);
+            setTotalRow(count);
+            setTotalPage(Math.ceil(count / limit));
         } catch (error) {
             console.error('Error fetching guests:', error.message);
         }
     };
 
     const searchData = (e) => {
-        e.preventDefault()
-        setPage(0)
-        setSearch(search)
-    }
+        e.preventDefault();
+        setPage(0);
+        getGuests(); // Fetch guests when searching
+    };
 
-    const changePage = ({selected}) => {
-        setPage(selected)
-        if(selected === 9) {
-            setMessage("Jika belum menemukan data yang dicari, Silahkan cari lewat kolom pencarian dengan keyword lebih spesifik!")
+    const changePage = ({ selected }) => {
+        setPage(selected);
+        if (selected === 9) {
+            setMessage("Jika belum menemukan data yang dicari, Silahkan cari lewat kolom pencarian dengan keyword lebih spesifik!");
         } else {
-            setMessage("")
+            setMessage("");
         }
-    }
+    };
 
     const deleteGuest = async (id) => {
         try {
-            // Delete the guest with the specified id
             const { error } = await supabase
                 .from('visitor')
                 .delete()
-                .eq('id', id); // Assuming 'id' is the primary key column
-    
+                .eq('id', id);
+
             if (error) throw error;
-    
-            // Fetch the updated list of guests after deletion
-            getGuests();
+
+            getGuests(); // Refresh guests after deletion
         } catch (error) {
             console.error('Error deleting guest:', error.message);
+        }
+    };
+
+    const handleAddGuest = async (newGuest) => {
+        try {
+            const { error } = await supabase
+                .from('visitor')
+                .insert(newGuest);
+
+            if (error) throw error;
+
+            setShowModalAdd(false); // Close modal after adding
+            getGuests(); // Refresh guests list
+        } catch (error) {
+            console.error('Error adding guest:', error.message);
+        }
+    };
+
+    const handleEditGuest = async (updatedGuest) => {
+        try {
+            const { error } = await supabase
+                .from('visitor')
+                .update(updatedGuest)
+                .eq('id', modalId);
+
+            if (error) throw error;
+
+            setShowModalEdit(false); // Close modal after editing
+            getGuests(); // Refresh guests list
+        } catch (error) {
+            console.error('Error editing guest:', error.message);
         }
     };
 
@@ -106,81 +132,88 @@ const IndexGuests = () => {
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pl-8 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">#</th>
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Tanggal</th>
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Nama</th>
-                                <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Unit</th>
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">No.Telepon</th>
+                                <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Unit Dituju</th>
+                                <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Pejabat/Pegawai</th>
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Keperluan</th>
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pr-8 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white dark:bg-slate-800">
-                            {guests.map((guest, index) => (
-                            <tr key={guest.id}>
-                                <td className="border-b text-base  border-slate-100 dark:border-slate-700 p-4 pl-8 text-slate-500 dark:text-slate-400">{guest.id}</td>
-                                <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{moment(guest.created_at).format('DD MMMM YYYY')}</td>
-                                <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{guest.nama}</td>
-                                <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{guest.unit}</td>
-                                <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{guest.phone}</td>
-                                <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400">{guest.description}</td>
-                                <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400">
-                                    <button 
-                                        onClick={() => {
-                                            setShowModalEdit(true)
-                                            setModalId(guest.id)
-                                            }} 
-                                        className="bg-yellow-400 p-1 rounded hover:bg-yellow-300 mr-2"
+    {guests.map((visitor, index) => ( // Change `guest` to `visitor`
+        <tr key={visitor.id}>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 pl-8 text-slate-500 dark:text-slate-400">{visitor.id}</td>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{moment(visitor.created_at).format('DD MMMM YYYY')}</td>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.nama}</td>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.asal_instansi}</td>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.no_kontak}</td>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.unit_dituju}</td>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.tuju_pegawai}</td>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400">{visitor.keperluan}</td>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400">
+                <button 
+                    onClick={() => {
+                        setShowModalEdit(true);
+                        setModalId(visitor.id); // Change `guest` to `visitor`
+                }} 
+                className="bg-yellow-400 p-1 rounded hover:bg-yellow-300 mr-2"
+            >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white " className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487a2.25 2.25 0 013.185 3.185l-1.662 1.663m-1.79 1.79l-1.662 1.663-4.09-4.09 1.662-1.663M4.5 17.25V19.5h2.25l8.553-8.553-2.25-2.25L4.5 17.25z" />
+                    </svg>
+                </button>
+                <button 
+                    onClick={() => deleteGuest(visitor.id)} // Change `guest` to `visitor`
+                    className="bg-red-500 p-1 rounded hover:bg-red-400"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white " className="w-6 h-6">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                        </svg>
-                                    </button>
-                                    
-                                    <button onClick={() => deleteGuest(guest.id)} className="bg-red-500 p-1 rounded hover:bg-red-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="w-6 h-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    </button>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="white" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        </button>
                                 </td>
                             </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
-                <p className="w-4/5 mx-auto pt-8 text-red-500 font-medium">{message}</p>
-                <nav className="flex justify-between w-4/5 mx-auto pt-8 pb-12">
-                    <p>Total Baris: <span className="font-medium">{totalRow}</span> Halaman: {totalRow ? page + 1 : 0} dari {totalPage}</p>
+                <div className="flex justify-center my-5">
                     <ReactPaginate
-                        className="inline"
-                        previousLabel={"<"}
-                        nextLabel={">"}
-                        pageCount={Math.min(10, totalPage)}
+                        breakLabel="..."
+                        nextLabel="Next >"
                         onPageChange={changePage}
-                        pageClassName={"inline"}
-                        previousClassName={"inline"}
-                        breakClassName={"inline"}
-                        nextClassName={"inline"}
-                        previousLinkClassName={"items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"}
-                        pageLinkClassName={"items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"}
-                        breakLinkClassName={"inline items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"}
-                        nextLinkClassName={"items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20"}
-                        activeLinkClassName={"z-10 inline-flex items-center border border-indigo-500 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-600 focus:z-20"}
+                        pageRangeDisplayed={2}
+                        pageCount={totalPage}
+                        previousLabel="< Previous"
+                        renderOnZeroPageCount={null}
+                        containerClassName="pagination"
+                        activeClassName="active"
                     />
-                </nav>
-            </div>            
-            <AddGuestModal 
-                onClose={() => setShowModalAdd(false)} 
-                visible={showModalAdd}
-            />
+                </div>
+                {message && (
+                    <div className="text-red-500 text-center">
+                        {message}
+                    </div>
+                )}
+            </div>
 
-            <EditGuestModal 
-                onClose={() => {
-                    setShowModalEdit(false)
-                    setModalId("")
-                }} 
-                visible={showModalEdit} 
-                id={modalId}
-            />
+            {/* Add Guest Modal */}
+            {showModalAdd && (
+                <AddGuestModal
+                    onClose={() => setShowModalAdd(false)}
+                    onAddGuest={handleAddGuest}
+                />
+            )}
+
+            {/* Edit Guest Modal */}
+            {showModalEdit && (
+                <EditGuestModal
+                    id={modalId}
+                    onClose={() => setShowModalEdit(false)}
+                    onEditGuest={handleEditGuest}
+                />
+            )}
         </div>
-    )
-}
+    );
+};
 
-export default IndexGuests
+export default IndexGuests; 

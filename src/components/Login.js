@@ -37,9 +37,13 @@ const Login = () => {
     <div className='flex bg-sky-100 h-screen w-full justify-center items-center'>
       <div className='w-1/4 bg-white rounded-md px-5 shadow py-10'>
         <div className='flex justify-center items-center'>
+        <img 
+              src="/lan.png" // Ganti dengan path gambar Anda
+              alt="Icon Buku Tamu" // Deskripsi gambar
+              className="w-12 h-12 ml-3" // Ukuran gambar dan margin kanan
+      />
           <p className='text-3xl font-semibold text-blue-900 mx-2'>BukuTamu</p>
         </div>
-
         <form onSubmit={Auth} className='w-full py-10'>
           {error && <p className='w-full text-red-500 text-sm my-2'>{error}</p>}
           <div className='w-full'>

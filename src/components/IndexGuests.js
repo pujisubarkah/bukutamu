@@ -138,7 +138,11 @@ const exportToExcel = () => {
             <div className="w-full mt-24">
                 <div className="flex justify-between w-11/12 mx-auto ">
                     <div className="w-1/3">
-                        <button onClick={() => setShowModalAdd(true)} className="py-2 px-3 font-medium text-white bg-green-500 rounded shadow hover:bg-green-400">Tambah Tamu</button>
+                        <button onClick={() => setShowModalAdd(true)}   className="py-2 px-3 font-medium text-white rounded shadow flex items-center"
+                        style={{ backgroundColor: '#a2003b', transition: 'background-color 0.3s'  }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#900028'} // Ganti warna saat hover
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#a2003b'} // Kembali ke warna asli saat tidak hover
+                        >Tambah Tamu</button>
                     </div>
                     <div className="w-1/3 mt-1 flex rounded-md shadow-sm">
                         <form onSubmit={searchData} className="w-full">
@@ -214,7 +218,9 @@ const exportToExcel = () => {
             {/* Export to Excel Button */}
             <div className="flex justify-end w-11/12 mx-auto mt-4"><button 
             onClick={exportToExcel} 
-            className="py-2 px-3 font-medium text-white bg-blue-500 rounded shadow hover:bg-blue-400 flex items-center">
+            className="py-2 px-3 font-medium text-white rounded shadow flex items-center"
+            style={{ backgroundColor: '#a2003b' }} // Mengganti warna latar belakang
+                >
                 <FaFileExcel className="mr-2" /> {/* This renders the Excel icon */}
                 {/* You can remove the text if you just want the icon */}
                 </button>

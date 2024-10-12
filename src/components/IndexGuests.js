@@ -4,6 +4,9 @@ import moment from "moment";
 import ReactPaginate from "react-paginate";
 import AddGuestModal from "./AddGuestModal"; // Ensure this path is correct
 import EditGuestModal from "./EditGuestModal";
+import * as XLSX from 'xlsx'; // Import the XLSX library
+import { FaFileExcel } from 'react-icons/fa';  // Import the Excel icon
+
 
 const IndexGuests = () => {
     const [guests, setGuests] = useState([]);
@@ -25,7 +28,11 @@ const IndexGuests = () => {
         try {
             const { data, error, count } = await supabase
                 .from('visitor')
-                .select('*', { count: 'exact' })
+                .select(`
+                    *,
+                    unit_dituju:unit_dituju (unit_name),
+                    tuju_pegawai:tuju_pegawai (pegawai_name)
+                `, { count: 'exact' })
                 .ilike('nama', `%${search}%`)
                 .range(page * limit, (page + 1) * limit - 1); // Adjusted range for pagination
 
@@ -100,6 +107,32 @@ const IndexGuests = () => {
         }
     };
 
+// Define the exportToExcel function
+const exportToExcel = () => {
+    // Prepare data to export (make sure your data is structured properly)
+    const worksheetData = guests.map(guest => ({
+        'ID': guest.id,
+        'Tanggal': moment(guest.created_at).format('DD MMMM YYYY'),
+        'Nama': guest.nama,
+        'No. Telepon': guest.no_kontak,
+        'Unit Dituju': guest.unit_dituju,
+        'Pejabat/Pegawai': guest.tuju_pegawai,
+        'Keperluan': guest.keperluan
+    }));
+
+    // Create a new worksheet
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+
+    // Create a new workbook
+    const workbook = XLSX.utils.book_new();
+
+    // Append the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Guests');
+
+    // Export the Excel file
+    XLSX.writeFile(workbook, 'Guests_List.xlsx');
+};
+
     return (
         <div>
             <div className="w-full mt-24">
@@ -132,6 +165,7 @@ const IndexGuests = () => {
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pl-8 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">#</th>
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Tanggal</th>
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Nama</th>
+                                <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Asal/Instansi</th>
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">No.Telepon</th>
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Unit Dituju</th>
                                 <th className="border-b text-base dark:border-slate-600 font-medium p-4 pt-0 pb-3 text-slate-400 dark:text-slate-200 text-left">Pejabat/Pegawai</th>
@@ -147,8 +181,8 @@ const IndexGuests = () => {
             <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.nama}</td>
             <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.asal_instansi}</td>
             <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.no_kontak}</td>
-            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.unit_dituju}</td>
-            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.tuju_pegawai}</td>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.unit_dituju.unit_name}</td>
+            <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 text-slate-500 dark:text-slate-400">{visitor.tuju_pegawai.pegawai_name}</td>
             <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400">{visitor.keperluan}</td>
             <td className="border-b text-base border-slate-100 dark:border-slate-700 p-4 pr-8 text-slate-500 dark:text-slate-400">
                 <button 
@@ -176,7 +210,17 @@ const IndexGuests = () => {
                         </tbody>
                     </table>
                 </div>
-                <div className="flex justify-center my-5">
+
+            {/* Export to Excel Button */}
+            <div className="flex justify-end w-11/12 mx-auto mt-4"><button 
+            onClick={exportToExcel} 
+            className="py-2 px-3 font-medium text-white bg-blue-500 rounded shadow hover:bg-blue-400 flex items-center">
+                <FaFileExcel className="mr-2" /> {/* This renders the Excel icon */}
+                {/* You can remove the text if you just want the icon */}
+                </button>
+                </div>
+
+            <div className="flex justify-center my-5">
                     <ReactPaginate
                         breakLabel="..."
                         nextLabel="Next >"

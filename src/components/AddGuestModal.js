@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient'; // Ensure the Supabase client is correctly imported
 
 
@@ -9,6 +9,43 @@ const AddGuestModal = ({ visible, onClose }) => {
   const [noKontak, setNoKontak] = useState('');
   const [tujuan, setTujuan] = useState('');
   const [keperluan, setKeperluan] = useState('');
+
+  const [units, setUnits] = useState([]); // For storing unit options
+  const [pegawai, setPegawai] = useState([]); // For storing pegawai options
+
+  useEffect(() => {
+    // Fetch units when the component mounts
+    const fetchUnits = async () => {
+      const { data, error } = await supabase
+        .from('unit_kerja') // Replace with your actual units table name
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching units:', error);
+      } else {
+        setUnits(data);
+      }
+    };
+
+    fetchUnits();
+  }, []);
+
+  // Fetch employees based on the selected unit
+  const handleUnitChange = async (e) => {
+    setUnit(e.target.value);
+    
+    const { data, error } = await supabase
+      .from('pegawai') // Replace with your actual pegawai table name
+      .select('*')
+      .eq('unit_id', e.target.value);
+
+    if (error) {
+      console.error('Error fetching pegawai:', error);
+    } else {
+      setPegawai(data);
+    }
+  };
+  
 
   const handleOnClose = (e) => {
     if (e.target.id === "background") onClose();
@@ -92,24 +129,34 @@ const AddGuestModal = ({ visible, onClose }) => {
 
           <div className='field py-3'>
             <label className='font-semibold text-slate-600'>Unit Dituju</label>
-            <input 
-              type="text" 
+            <select 
               value={unit} 
-              onChange={(e) => setUnit(e.target.value)} 
+              onChange={handleUnitChange} 
               className='block w-full bg-slate-100 py-1 px-3 rounded focus:outline-none focus:ring-1 focus:ring-sky-400 focus:border-sky-400' 
-              required 
-            />
+              required
+            >
+              <option value="">Pilih Unit</option>
+              {units.map((u) => (
+                <option key={u.id} value={u.id}>{u.unit_name}</option>
+              ))}
+            </select>
           </div>
 
+
+          {/* Pejabat/Pegawai Dituju */}
           <div className='field py-3'>
             <label className='font-semibold text-slate-600'>Pejabat/Pegawai Dituju</label>
-            <input 
-              type="text" 
+            <select 
               value={tujuan} 
               onChange={(e) => setTujuan(e.target.value)} 
               className='block w-full bg-slate-100 py-1 px-3 rounded focus:outline-none focus:ring-1 focus:ring-sky-400 focus:border-sky-400' 
-              required 
-            />
+              required
+            >
+              <option value="">Pilih Pegawai</option>
+              {pegawai.map((p) => (
+                <option key={p.id} value={p.id}>{p.pegawai_name}</option>
+              ))}
+            </select>
           </div>
 
           <div className='field py-3'>

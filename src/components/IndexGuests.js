@@ -201,6 +201,7 @@ const IndexGuests = () => {
                 <AddGuestModal
                     onClose={() => setShowModalAdd(false)}
                     onAddGuest={handleAddGuest}
+                    visible={true}
                 />
             )}
 
@@ -210,6 +211,7 @@ const IndexGuests = () => {
                     id={modalId}
                     onClose={() => setShowModalEdit(false)}
                     onEditGuest={handleEditGuest}
+                    visible={true}
                 />
             )}
         </div>

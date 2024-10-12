@@ -5,10 +5,15 @@ module.exports = {
     "./src/**/*.{html,js}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        maroon: '#2003b', // Kode warna merah marun
+      },
+    },
   },
   plugins: [],
   daisyui: {
     themes: ["cupcake", "dark", "cmyk"],
   },
 }
+

@@ -90,7 +90,7 @@ const AddGuestModal = ({ visible, onClose }) => {
 
   return (
     <div onClick={handleOnClose} id='background' className='fixed inset-0 bg-slate-900 bg-opacity-30 backdrop-blur-sm flex justify-center items-center'>
-      <div className='w-5/12 bg-white rounded shadow p-4'>
+      <div className='w-5/12 bg-white rounded shadow p-4 max-h-[60vh] overflow-y-auto'>
         <p className='text-xl font-bold text-sky-700'>Tambah Data Tamu</p>
         <br />
         <form onSubmit={saveGuest}>
@@ -165,7 +165,7 @@ const AddGuestModal = ({ visible, onClose }) => {
               value={keperluan} 
               onChange={(e) => setKeperluan(e.target.value)} 
               cols="30"
-              rows="10"
+              rows="4"
               className='block w-full bg-slate-100 py-1 px-3 rounded focus:outline-none focus:ring-1 focus:ring-sky-400 focus:border-sky-400' 
               required 
             />

@@ -15,7 +15,7 @@ const DashboardBukuTamu = () => {
   }, [dispatch])
 
   useEffect(() => {
-    if(isError) navigate('/login')
+    if(isError) navigate('/')
   }, [isError, navigate])
   
   return (

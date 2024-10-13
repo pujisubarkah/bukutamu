@@ -15,7 +15,7 @@ const Layout = ({children}) => {
   const logout = () => {
     dispatch(logoutUser())
     dispatch(reset())
-    navigate("/login")
+    navigate("/")
   }
 
   return (

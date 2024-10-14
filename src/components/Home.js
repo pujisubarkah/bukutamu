@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient'; // Ensure the Supabase client is correctly imported
+import AttendanceList from './AttendanceList'; // Impor komponen AttendanceList
 
 const Home = () => {
   const [visitorsToday, setVisitorsToday] = useState(0);
@@ -56,6 +57,9 @@ const Home = () => {
               <p className='text-xl font-semibold text-sky-800 py-3'>Pengunjung Minggu Ini</p>
               <p className='text-3xl font-semibold text-sky-700 py-2'>{visitorsThisWeek}</p>
             </div>
+          </div>
+          <div className="mt-10"> {/* Tambahkan margin top untuk pemisah */}
+          <AttendanceList /> {/* Tambahkan komponen AttendanceList di sini */}>
           </div>
         </div>
       </section>

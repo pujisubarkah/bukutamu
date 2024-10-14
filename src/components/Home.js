@@ -59,7 +59,6 @@ const Home = () => {
             </div>
           </div>
           <div className="mt-10"> {/* Tambahkan margin top untuk pemisah */}
-          <AttendanceList /> {/* Tambahkan komponen AttendanceList di sini */}>
           </div>
         </div>
       </section>

@@ -6,6 +6,7 @@ import IndexGuests from './components/IndexGuests.js';
 import Dashboard from './components/Dashboard.js';
 import DashboardBukuTamu from './components/DashboardBukuTamu.js';
 import Login from './components/Login.js';
+import DashboardAttendance from './components/DashboardAttendance.js';
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         <Route path='/dashboard' element={<Dashboard />} />
         <Route path='/dashboard/bukutamu' element={<DashboardBukuTamu />} />
         <Route path='/dashboard/bukutamu/:id' element={<IndexGuests />} />  
+        <Route path='/dashboard/attendance' element={<DashboardAttendance />} />
       </Routes>
     </BrowserRouter>
     </div>

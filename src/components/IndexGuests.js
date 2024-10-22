@@ -227,25 +227,28 @@ const exportToExcel = () => {
                 </button>
                 </div>
 
-            <div className="flex justify-center my-5">
+            {totalRow > 0 && (
                     <ReactPaginate
-                        breakLabel="..."
-                        nextLabel="Next >"
-                        onPageChange={changePage}
-                        pageRangeDisplayed={2}
+                        previousLabel={"<"}
+                        nextLabel={">"}
+                        breakLabel={"..."}
                         pageCount={totalPage}
-                        previousLabel="< Previous"
-                        renderOnZeroPageCount={null}
-                        containerClassName="pagination"
-                        activeClassName="active"
+                        marginPagesDisplayed={2}
+                        pageRangeDisplayed={5}
+                        onPageChange={changePage}
+                        containerClassName={"flex justify-center mt-4"}
+                        pageClassName={"mx-1"}
+                        previousClassName={"mx-1"}
+                        nextClassName={"mx-1"}
+                        activeClassName={"font-bold"}
+                        pageLinkClassName={"border p-2 rounded"}
+                        previousLinkClassName={"border p-2 rounded"}
+                        nextLinkClassName={"border p-2 rounded"}
                     />
-                </div>
-                {message && (
-                    <div className="text-red-500 text-center">
-                        {message}
-                    </div>
                 )}
+                {message && <p className="text-red-600 text-center mt-2">{message}</p>}
             </div>
+
 
             {/* Add Guest Modal */}
             {showModalAdd && (

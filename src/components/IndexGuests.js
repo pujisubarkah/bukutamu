@@ -34,6 +34,7 @@ const IndexGuests = () => {
                     tuju_pegawai:tuju_pegawai (pegawai_name)
                 `, { count: 'exact' })
                 .ilike('nama', `%${search}%`)
+                .order('created_at', { ascending: false }) // Urutkan berdasarkan created_at secara descending
                 .range(page * limit, (page + 1) * limit - 1); // Adjusted range for pagination
 
             if (error) throw error;

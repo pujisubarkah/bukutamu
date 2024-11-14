@@ -109,30 +109,44 @@ const IndexGuests = () => {
     };
 
 // Define the exportToExcel function
-const exportToExcel = () => {
-    // Prepare data to export (make sure your data is structured properly)
-    const worksheetData = guests.map(guest => ({
-        'ID': guest.id,
-        'Tanggal': moment(guest.created_at).format('DD MMMM YYYY'),
-        'Nama': guest.nama,
-        'No. Telepon': guest.no_kontak,
-        'Unit Dituju': guest.unit_dituju,
-        'Pejabat/Pegawai': guest.tuju_pegawai,
-        'Keperluan': guest.keperluan
-    }));
+const exportToExcel = async () => {
+    try {
+        // Fetch all guests from the database, without pagination
+        const { data, error } = await supabase
+            .from('visitor')
+            .select(`
+                *,
+                unit_dituju:unit_dituju (unit_name),
+                tuju_pegawai:tuju_pegawai (pegawai_name)
+            `);
 
-    // Create a new worksheet
-    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+        if (error) throw error;
 
-    // Create a new workbook
-    const workbook = XLSX.utils.book_new();
+        // Map the data to a suitable format for the Excel file
+        const worksheetData = data.map(guest => ({
+            'ID': guest.id,
+            'Tanggal': moment(guest.created_at).format('DD MMMM YYYY'),
+            'Nama': guest.nama,
+            'No. Telepon': guest.no_kontak,
+            'Unit Dituju': guest.unit_dituju?.unit_name || '',
+            'Pejabat/Pegawai': guest.tuju_pegawai?.pegawai_name || '',
+            'Keperluan': guest.keperluan
+        }));
 
-    // Append the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Guests');
+        // Create a new worksheet and workbook
+        const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+        const workbook = XLSX.utils.book_new();
 
-    // Export the Excel file
-    XLSX.writeFile(workbook, 'Guests_List.xlsx');
+        // Append the worksheet to the workbook
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'All Guests');
+
+        // Export the Excel file
+        XLSX.writeFile(workbook, 'Guests_List_All_Pages.xlsx');
+    } catch (error) {
+        console.error('Error exporting to Excel:', error.message);
+    }
 };
+
 
     return (
         <div>

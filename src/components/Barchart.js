@@ -82,15 +82,16 @@ class Barchart extends Component {
     render() {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="w-full max-w-4xl">
-                    <Chart
-                        options={this.state.options}
-                        series={this.state.series}
-                        type="bar"
-                        width="100%"
-                        height="600"
-                    />
-                </div>
+            <div className="w-full max-w-4xl">
+                <h1 className="text-center text-xl font-bold mb-4">Jumlah Tamu LAN Jakarta per Bulan</h1>
+                <Chart
+                options={this.state.options}
+                series={this.state.series}
+                type="bar"
+                width="100%"
+                height="600"
+                />
+            </div>
             </div>
         );
     }
